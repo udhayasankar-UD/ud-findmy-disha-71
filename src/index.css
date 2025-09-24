@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* DISHA Design System - All colors, gradients, fonts, etc defined here.
+All colors MUST be HSL. */
+
+@layer base {
+  :root {
+    /* DISHA Brand Colors */
+    --primary: 27 100% 50%;        /* #FF7A00 - Orange */
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 27 100% 60%;
+    --primary-dark: 27 100% 40%;
+    
+    --secondary: 214 100% 18%;     /* #002B5B - Blue */
+    --secondary-foreground: 0 0% 100%;
+    --secondary-light: 214 80% 25%;
+    
+    --background: 228 33% 97%;     /* #F8F9FC */
+    --foreground: 214 100% 18%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 214 100% 18%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 214 100% 18%;
+    
+    --muted: 228 20% 94%;
+    --muted-foreground: 214 20% 45%;
+    
+    --accent: 27 100% 95%;
+    --accent-foreground: 27 100% 25%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 228 20% 88%;
+    --input: 228 20% 88%;
+    --ring: 27 100% 50%;
+    
+    --success: 120 60% 50%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 45 100% 60%;
+    --warning-foreground: 45 100% 15%;
+    
+    --info: 200 100% 50%;
+    --info-foreground: 0 0% 100%;
+    
+    /* DISHA Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-light)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+    
+    /* DISHA Shadows */
+    --shadow-sm: 0 2px 4px -1px hsl(var(--primary) / 0.1);
+    --shadow-md: 0 4px 12px -2px hsl(var(--primary) / 0.15);
+    --shadow-lg: 0 8px 24px -4px hsl(var(--primary) / 0.2);
+    --shadow-card: 0 4px 16px -2px hsl(var(--secondary) / 0.1);
+    
+    /* DISHA Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 214 100% 8%;
+    --foreground: 0 0% 95%;
+    --card: 214 50% 12%;
+    --card-foreground: 0 0% 95%;
+    --popover: 214 50% 12%;
+    --popover-foreground: 0 0% 95%;
+    --muted: 214 30% 15%;
+    --muted-foreground: 214 20% 65%;
+    --accent: 214 30% 18%;
+    --accent-foreground: 0 0% 95%;
+    --border: 214 30% 20%;
+    --input: 214 30% 18%;
+    --ring: 27 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+@layer components {
+  /* DISHA Custom Components */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+  
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  .shadow-disha {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out forwards;
+  }
+  
+  .match-progress {
+    background: linear-gradient(90deg, hsl(var(--success)) var(--progress, 0%), hsl(var(--muted)) var(--progress, 0%));
+    border-radius: 9999px;
+    height: 8px;
+    transition: var(--transition-smooth);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ensure dropdown menus have proper backgrounds and z-index */
+@layer components {
+  [data-radix-popper-content-wrapper] {
+    z-index: 50;
+  }
+
+  [data-radix-select-content] {
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    z-index: 50;
+  }
+}
