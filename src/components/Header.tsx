@@ -93,14 +93,14 @@ const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <div className="hidden sm:flex items-center space-x-2">
+            {/* <div className="hidden sm:flex items-center space-x-2">
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/login">Login</Link>
               </Button>
               <Button size="sm" asChild>
                 <Link to="/signup">Sign Up</Link>
               </Button>
-            </div>
+            </div> */}
 
             {/* Mobile Menu Button */}
             <Button
@@ -133,14 +133,14 @@ const Header = () => {
                   <span>{link.label}</span>
                 </Link>
               ))}
-              <div className="flex flex-col space-y-2 pt-2 border-t">
+              {/* <div className="flex flex-col space-y-2 pt-2 border-t">
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link>
                 </Button>
                 <Button size="sm" asChild>
                   <Link to="/signup" onClick={() => setIsMenuOpen(false)}>Sign Up</Link>
                 </Button>
-              </div>
+              </div> */}
             </nav>
           </div>
         )}
