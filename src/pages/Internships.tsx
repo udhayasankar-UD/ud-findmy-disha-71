@@ -174,8 +174,8 @@ const Internships = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex gap-3 flex-1">
                           {/* Company Icon */}
-                          <div className="w-12 h-12 bg-blue-100 rounded flex items-center justify-center flex-shrink-0">
-                            <Building2 className="h-6 w-6 text-blue-600" />
+                          <div className="w-12 h-12 bg-orange-100 rounded flex items-center justify-center flex-shrink-0">
+                            <Building2 className="h-6 w-6 text-orange-600" />
                           </div>
 
                           <div className="flex-1">
@@ -184,7 +184,7 @@ const Internships = () => {
                               <h3 className="font-semibold text-lg">{internship.title}</h3>
                               <Badge className="bg-orange-500 text-white text-xs">Featured</Badge>
                             </div>
-                            <p className="text-blue-600 font-medium mb-2">{internship.company}</p>
+                            <p className="text-slate-600 font-medium mb-2">{internship.company}</p>
 
                             {/* Description */}
                             <p className="text-gray-600 text-sm mb-3 line-clamp-2">
@@ -217,13 +217,20 @@ const Internships = () => {
 
                             {/* Skills */}
                             <div className="flex flex-wrap gap-2">
-                              {internship.skills?.slice(0, 4).map((skill) => (
-                                <Badge key={skill} variant="secondary" className="text-xs">
+                              {internship.skills?.slice(0, 4).map((skill, index) => (
+                                <Badge 
+                                  key={skill} 
+                                  className={`text-xs ${
+                                    index === 0 
+                                      ? "bg-gray-100 text-gray-700" 
+                                      : "bg-slate-700 text-white"
+                                  }`}
+                                >
                                   {skill}
                                 </Badge>
                               ))}
                               {internship.skills && internship.skills.length > 4 && (
-                                <Badge variant="secondary" className="text-xs">
+                                <Badge className="bg-slate-700 text-white text-xs">
                                   +{internship.skills.length - 4} more
                                 </Badge>
                               )}
@@ -239,7 +246,7 @@ const Internships = () => {
                           <div className="text-xs text-gray-500 mb-2">
                             Posted 3 days ago
                           </div>
-                          <Button className="bg-blue-600 hover:bg-blue-700">
+                          <Button className="bg-orange-500 hover:bg-orange-600 text-white">
                             Apply Now
                           </Button>
                         </div>
