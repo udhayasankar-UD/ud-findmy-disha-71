@@ -6,7 +6,7 @@ import Layout from "@/components/Layout";
 import InternshipCard from "@/components/InternshipCard";
 import { FilterSidebar } from "@/components/FilterSidebar";
 import { Search } from "lucide-react";
-import internshipsData from "@/data/internships.json";
+import internshipsData from "@/data/internships-new.json";
 
 const Internships = () => {
   const [searchQuery, setSearchQuery] = useState("");

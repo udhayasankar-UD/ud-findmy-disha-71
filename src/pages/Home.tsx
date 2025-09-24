@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Layout from '@/components/Layout';
 import heroImage from '@/assets/hero-image.jpg';
 import { PartnersCarousel } from '@/components/home/PartnersCarousel';
 import { EligibilityDashboard } from '@/components/home/EligibilityDashboard';
@@ -12,7 +13,8 @@ import { IndiaMapVisualization } from '@/components/home/IndiaMapVisualization';
 
 export default function Home() {
   return (
-    <div className="space-y-16">
+    <Layout>
+      <div className="space-y-16">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-secondary text-white">
         <div 
@@ -88,6 +90,7 @@ export default function Home() {
 
       {/* India Map Visualization */}
       <IndiaMapVisualization />
-    </div>
+      </div>
+    </Layout>
   );
 }
