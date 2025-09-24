@@ -101,7 +101,7 @@ export function FilterSidebar({ filters, setFilters, clearFilters }: FilterSideb
                   <SelectValue placeholder="Any location" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any location</SelectItem>
+                  <SelectItem value="all-locations">Any location</SelectItem>
                   {locations.map(location => (
                     <SelectItem key={location} value={location}>{location}</SelectItem>
                   ))}
@@ -121,7 +121,7 @@ export function FilterSidebar({ filters, setFilters, clearFilters }: FilterSideb
                   <SelectValue placeholder="Any stipend" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any stipend</SelectItem>
+                  <SelectItem value="all-stipends">Any stipend</SelectItem>
                   {stipendRanges.map(range => (
                     <SelectItem key={range} value={range}>{range}</SelectItem>
                   ))}
@@ -141,7 +141,7 @@ export function FilterSidebar({ filters, setFilters, clearFilters }: FilterSideb
                   <SelectValue placeholder="Any duration" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any duration</SelectItem>
+                  <SelectItem value="all-durations">Any duration</SelectItem>
                   {durations.map(duration => (
                     <SelectItem key={duration} value={duration}>{duration}</SelectItem>
                   ))}
@@ -161,7 +161,7 @@ export function FilterSidebar({ filters, setFilters, clearFilters }: FilterSideb
                   <SelectValue placeholder="Any sector" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any sector</SelectItem>
+                  <SelectItem value="all-sectors">Any sector</SelectItem>
                   {sectors.map(sector => (
                     <SelectItem key={sector} value={sector}>{sector}</SelectItem>
                   ))}
@@ -178,7 +178,7 @@ export function FilterSidebar({ filters, setFilters, clearFilters }: FilterSideb
                   <SelectValue placeholder="Any type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any type</SelectItem>
+                  <SelectItem value="all-types">Any type</SelectItem>
                   {workTypes.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
@@ -195,7 +195,7 @@ export function FilterSidebar({ filters, setFilters, clearFilters }: FilterSideb
                   <SelectValue placeholder="Any company" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any company</SelectItem>
+                  <SelectItem value="all-companies">Any company</SelectItem>
                   {companies.map(company => (
                     <SelectItem key={company} value={company}>{company}</SelectItem>
                   ))}

@@ -11,12 +11,12 @@ import internshipsData from "@/data/internships-new.json";
 const Internships = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
-    location: "",
-    stipend: "",
-    duration: "",
-    sector: "",
-    workType: "",
-    company: ""
+    location: "all-locations",
+    stipend: "all-stipends",
+    duration: "all-durations",
+    sector: "all-sectors",
+    workType: "all-types",
+    company: "all-companies"
   });
 
 
@@ -26,20 +26,20 @@ const Internships = () => {
                          internship.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          internship.sector.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesLocation = !filters.location || internship.location.includes(filters.location);
-    const matchesSector = !filters.sector || internship.sector === filters.sector;
+    const matchesLocation = !filters.location || filters.location === "all-locations" || internship.location.includes(filters.location);
+    const matchesSector = !filters.sector || filters.sector === "all-sectors" || internship.sector === filters.sector;
     
     return matchesSearch && matchesLocation && matchesSector;
   });
 
   const clearFilters = () => {
     setFilters({
-      location: "",
-      stipend: "",
-      duration: "",
-      sector: "",
-      workType: "",
-      company: ""
+      location: "all-locations",
+      stipend: "all-stipends",
+      duration: "all-durations",
+      sector: "all-sectors",
+      workType: "all-types",
+      company: "all-companies"
     });
   };
 
