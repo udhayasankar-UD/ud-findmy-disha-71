@@ -1,319 +1,195 @@
+// src/pages/InternshipDetail.tsx
+
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
-import ProgressBar from "@/components/ProgressBar";
-import { 
-  ArrowLeft, 
-  MapPin, 
-  Calendar, 
-  IndianRupee, 
-  Building, 
-  Users, 
-  Clock, 
-  CheckCircle,
-  BookOpen,
-  Award,
-  Heart,
-  Share2,
-  ExternalLink
-} from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, IndianRupee, Building, CheckCircle, Award, Heart, Share2, Briefcase } from "lucide-react";
+import axios from "axios";
+
+// Interface for a single internship, matching our data structure
+interface InternshipDetails {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  stipend: string;
+  duration: string;
+  sector: string;
+  description: string;
+  requirements: string | string[];
+  responsibilities: string | string[];
+  skills: string | string[];
+  perks: string | string[];
+  deadline: string | null;
+  startdate: string | null;
+  numberofopenings: number | null;
+  type: string;
+}
+
+// Helper to format ["City", "Pincode"] into just "City"
+const formatLocation = (locationStr: string): string => {
+  try {
+    const arr = JSON.parse(locationStr.replace(/'/g, '"'));
+    if (Array.isArray(arr) && arr.length > 0) return arr[0];
+  } catch (e) { return locationStr; }
+  return locationStr;
+};
+
+// Helper to parse stringified lists
+const parseListFromString = (str: string | string[] | undefined | null): string[] => {
+    if (Array.isArray(str)) return str;
+    if (typeof str !== 'string' || !str) return [];
+    try {
+        return JSON.parse(str.replace(/'/g, '"'));
+    } catch (e) {
+        return str.split(';').map(s => s.trim()).filter(Boolean);
+    }
+};
 
 const InternshipDetail = () => {
   const { id } = useParams();
+  const [internship, setInternship] = useState<InternshipDetails | null>(null);
+  const [similarOpportunities, setSimilarOpportunities] = useState<InternshipDetails[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data - in real app, this would be fetched based on ID
-  const internship = {
-    id: "1",
-    title: "Frontend Developer Intern",
-    company: "TechFlow Solutions",
-    location: "Mumbai, Maharashtra",
-    stipend: "₹20,000/month",
-    duration: "3 months",
-    sector: "Technology",
-    description: "Join our dynamic team to work on cutting-edge web applications using React and modern JavaScript frameworks. You'll collaborate with senior developers, participate in code reviews, and contribute to real projects that impact thousands of users.",
-    requirements: [
-      "Currently pursuing Bachelor's in Computer Science or related field",
-      "Basic knowledge of HTML, CSS, and JavaScript",
-      "Familiarity with React.js framework preferred",
-      "Good problem-solving and communication skills",
-      "Ability to work in a collaborative team environment"
-    ],
-    responsibilities: [
-      "Develop responsive user interfaces using React.js",
-      "Collaborate with designers to implement UI/UX designs",
-      "Write clean, maintainable, and well-documented code",
-      "Participate in daily standups and sprint planning",
-      "Learn and apply best practices in web development"
-    ],
-    benefits: [
-      "Mentorship from experienced developers",
-      "Flexible working hours",
-      "Work-from-home options available",
-      "Certificate of completion",
-      "Potential for full-time offer based on performance"
-    ],
-    skills: ["React", "JavaScript", "HTML/CSS", "Git", "RESTful APIs"],
-    matchPercentage: 85,
-    fairnessBoost: true,
-    companyInfo: {
-      employees: "50-200",
-      founded: "2018",
-      website: "www.techflowsolutions.com",
-      description: "A fast-growing software development company specializing in web and mobile applications for startups and enterprises."
-    },
-    deadline: "2024-03-15",
-    posted: "2024-02-20"
-  };
+  useEffect(() => {
+    if (!id) return;
+    const fetchInternshipData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // Fetch all internships to find the current one and the next ones
+        const response = await axios.get('http://127.0.0.1:8000/internships');
+        const allInternships = response.data.internships as InternshipDetails[];
+        
+        const currentIndex = allInternships.findIndex(item => item.id === id);
 
-  const whyMatches = [
-    { reason: "Skills match", percentage: 90 },
-    { reason: "Location preference", percentage: 100 },
-    { reason: "Sector interest", percentage: 95 },
-    { reason: "Duration preference", percentage: 70 }
-  ];
+        if (currentIndex === -1) {
+            setError("Internship not found.");
+            return;
+        }
+        
+        const currentInternship = allInternships[currentIndex];
+        setInternship(currentInternship);
 
-  const upskillSuggestions = [
-    { skill: "Advanced React Patterns", duration: "2 weeks", platform: "Free Online" },
-    { skill: "TypeScript Fundamentals", duration: "1 week", platform: "Free Online" },
-    { skill: "Git & Version Control", duration: "3 days", platform: "Free Online" }
-  ];
+        // Find the next two internships for the "Similar Opportunities" section
+        const nextOpportunities = [];
+        if (allInternships[currentIndex + 1]) {
+            nextOpportunities.push(allInternships[currentIndex + 1]);
+        }
+        if (allInternships[currentIndex + 2]) {
+            nextOpportunities.push(allInternships[currentIndex + 2]);
+        }
+        setSimilarOpportunities(nextOpportunities);
+
+      } catch (err) {
+        setError("Failed to load internship details. Please ensure the API is running.");
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchInternshipData();
+  }, [id]);
+
+  if (isLoading) return <Layout><div className="text-center p-10">Loading Details...</div></Layout>;
+  if (error) return <Layout><div className="text-center p-10 text-red-500">{error}</div></Layout>;
+  if (!internship) return <Layout><div className="text-center p-10">Internship not found.</div></Layout>;
+
+  // Parse fields for rendering
+  const requirementsList = parseListFromString(internship.requirements);
+  const responsibilitiesList = parseListFromString(internship.responsibilities);
+  const perksList = parseListFromString(internship.perks);
+  const skillsList = parseListFromString(internship.skills);
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="space-y-6">
-          {/* Back Button */}
-          <Button variant="ghost" asChild className="mb-4">
-            <Link to="/internships">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Internships
-            </Link>
+      <div className="bg-gray-50/50">
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <Button variant="ghost" asChild className="mb-6 text-muted-foreground">
+            <Link to="/internships"><ArrowLeft className="w-4 h-4 mr-2" />Back to Internships</Link>
           </Button>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Header */}
-              <Card className="shadow-disha border-0">
+              <Card className="shadow-none border rounded-lg bg-card">
                 <CardHeader>
-                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                    <div className="space-y-2">
-                      <h1 className="text-3xl font-heading font-bold">{internship.title}</h1>
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Building className="w-4 h-4" />
-                        <span className="text-lg">{internship.company}</span>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="flex items-center gap-4">
+                        <h1 className="text-3xl font-heading font-bold">{internship.title}</h1>
+                        <Badge variant="outline" className="border-purple-500 text-purple-500 bg-purple-50">{internship.type}</Badge>
                       </div>
+                      <p className="text-lg text-muted-foreground mt-1">{internship.company}</p>
                     </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        <Heart className="w-4 h-4" />
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Share2 className="w-4 h-4" />
-                      </Button>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="icon"><Heart className="w-4 h-4" /></Button>
+                      <Button variant="outline" size="icon"><Share2 className="w-4 h-4" /></Button>
                     </div>
                   </div>
-
-                  <div className="flex flex-wrap gap-4 text-sm">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4 text-muted-foreground" />
-                      {internship.location}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <IndianRupee className="w-4 h-4 text-muted-foreground" />
-                      {internship.stipend}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4 text-muted-foreground" />
-                      {internship.duration}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4 text-muted-foreground" />
-                      Posted: {new Date(internship.posted).toLocaleDateString()}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    <Badge>{internship.sector}</Badge>
-                    {internship.fairnessBoost && (
-                      <Badge variant="secondary" className="bg-success/10 text-success border-success/20">
-                        <Award className="w-3 h-3 mr-1" />
-                        Fairness Boost
-                      </Badge>
-                    )}
-                    {internship.skills.slice(0, 3).map((skill, index) => (
-                      <Badge key={index} variant="outline">{skill}</Badge>
-                    ))}
+                  <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground pt-4">
+                    <div className="flex items-center gap-1.5"><MapPin className="w-4 h-4" />{formatLocation(internship.location)}</div>
+                    <div className="flex items-center gap-1.5"><IndianRupee className="w-4 h-4" />{internship.stipend}</div>
+                    <div className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />{internship.duration + " month"}</div>
                   </div>
                 </CardHeader>
               </Card>
 
-              {/* Description */}
-              <Card className="shadow-disha border-0">
-                <CardHeader>
-                  <CardTitle>About the Internship</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {internship.description}
-                  </p>
-                </CardContent>
+              <Card><CardHeader><CardTitle>About This Internship</CardTitle></CardHeader><CardContent><p className="text-muted-foreground">{internship.description}</p></CardContent></Card>
+              <Card><CardHeader><CardTitle>Requirements</CardTitle></CardHeader>
+                <CardContent><ul className="space-y-3">{requirementsList.map((req, index) => (<li key={index} className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-success mt-0.5" /><span className="text-muted-foreground">{req}</span></li>))}</ul></CardContent>
               </Card>
-
-              {/* Requirements */}
-              <Card className="shadow-disha border-0">
-                <CardHeader>
-                  <CardTitle>Requirements</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {internship.requirements.map((req, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
-                        <span className="text-muted-foreground">{req}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
+              <Card><CardHeader><CardTitle>Key Responsibilities</CardTitle></CardHeader>
+                <CardContent><ul className="space-y-3">{responsibilitiesList.map((resp, index) => (<li key={index} className="flex items-start gap-3"><div className="w-1.5 h-1.5 bg-primary rounded-full mt-2" /><span className="text-muted-foreground">{resp}</span></li>))}</ul></CardContent>
               </Card>
-
-              {/* Responsibilities */}
-              <Card className="shadow-disha border-0">
-                <CardHeader>
-                  <CardTitle>Key Responsibilities</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {internship.responsibilities.map((resp, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                        <span className="text-muted-foreground">{resp}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Benefits */}
-              <Card className="shadow-disha border-0">
-                <CardHeader>
-                  <CardTitle>What You'll Get</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {internship.benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <Award className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                        <span className="text-muted-foreground">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Company Info */}
-              <Card className="shadow-disha border-0">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    About {internship.company}
-                    <Button variant="outline" size="sm">
-                      <ExternalLink className="w-4 h-4 mr-1" />
-                      Visit Website
-                    </Button>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-muted-foreground">{internship.companyInfo.description}</p>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Employees:</span>
-                      <span className="ml-2 font-medium">{internship.companyInfo.employees}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Founded:</span>
-                      <span className="ml-2 font-medium">{internship.companyInfo.founded}</span>
-                    </div>
-                  </div>
-                </CardContent>
+              <Card><CardHeader><CardTitle>What You'll Get</CardTitle></CardHeader>
+                <CardContent><ul className="space-y-3">{perksList.map((perk, index) => (<li key={index} className="flex items-start gap-3"><Award className="w-5 h-5 text-primary mt-0.5" /><span className="text-muted-foreground">{perk}</span></li>))}</ul></CardContent>
               </Card>
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Apply Card */}
-              <Card className="shadow-disha border-0 bg-gradient-card">
-                <CardContent className="p-6 space-y-4">
-                  <div className="text-center space-y-2">
-                    <div className="text-2xl font-bold text-primary">Apply Now</div>
-                    <div className="text-sm text-muted-foreground">
-                      Deadline: {new Date(internship.deadline).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <Button className="w-full" size="lg">
-                    Apply for this Internship
-                  </Button>
-                  <div className="text-xs text-center text-muted-foreground">
-                    You'll be redirected to the application form
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Match Score */}
-              <Card className="shadow-disha border-0">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Award className="w-5 h-5 text-success" />
-                    This fits you: {internship.matchPercentage}%
-                  </CardTitle>
-                </CardHeader>
+            <div className="space-y-6 lg:sticky top-24">
+              <Card className="bg-orange-500/10 border-orange-500/20">
+                <CardHeader><CardTitle className="text-orange-600">Apply Now</CardTitle><p className="text-xs text-muted-foreground">Don't miss this opportunity to grow your career.</p></CardHeader>
                 <CardContent className="space-y-4">
-                  {whyMatches.map((match, index) => (
-                    <ProgressBar
-                      key={index}
-                      value={match.percentage}
-                      label={match.reason}
-                      variant="success"
-                    />
-                  ))}
-                </CardContent>
-              </Card>
-
-              {/* Upskill Suggestions */}
-              <Card className="shadow-disha border-0">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-primary" />
-                    Boost Your Chances
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {upskillSuggestions.map((suggestion, index) => (
-                    <div key={index} className="p-3 bg-muted/50 rounded-lg space-y-1">
-                      <div className="font-medium text-sm">{suggestion.skill}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {suggestion.duration} • {suggestion.platform}
-                      </div>
-                      <Button variant="outline" size="sm" className="w-full mt-2">
-                        Start Learning
-                      </Button>
+                  <div className="space-y-3 text-sm border-t pt-4">
+                    <div className="flex justify-between"><span>Application Deadline</span><span className="font-semibold">{internship.deadline ? new Date(internship.deadline).toLocaleDateString('en-IN') : 'N/A'}</span></div>
+                    {/* <div className="flex justify-between"><span>Start Date</span><span className="font-semibold">{internship.startdate}</span></div>  */}
+                    <div className="flex justify-between"><span>Start Date</span><span className="font-semibold">{"Immediate"}</span></div>
+                    <div className="flex justify-between">
+                      <span>Openings</span>
+                      <span className="font-semibold">
+                        {internship.numberofopenings ? `${internship.numberofopenings} positions` : 'N/A'}
+                      </span>
                     </div>
-                  ))}
+                    <div className="flex justify-between"><span>Sector</span><span className="font-semibold">{internship.sector}</span></div>
+                  </div>
+                  <Button className="w-full" size="lg"><Briefcase className="w-4 h-4 mr-2" />Apply for This Internship</Button>
+                  <p className="text-xs text-center text-muted-foreground">By applying, you agree to our Terms of Service and Privacy Policy.</p>
                 </CardContent>
               </Card>
-
-              {/* Skills Required */}
-              <Card className="shadow-disha border-0">
-                <CardHeader>
-                  <CardTitle>Skills Required</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {internship.skills.map((skill, index) => (
-                      <Badge key={index} variant="secondary">{skill}</Badge>
-                    ))}
-                  </div>
+              
+              <Card><CardHeader><CardTitle>Skills Required</CardTitle></CardHeader>
+                <CardContent><div className="flex flex-wrap gap-2">{skillsList.map((skill, index) => (<Badge key={index}>{skill}</Badge>))}</div></CardContent>
+              </Card>
+              
+              <Card><CardHeader><CardTitle>Similar Opportunities</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  {similarOpportunities.length > 0 ? (
+                    similarOpportunities.map(opp => (
+                      <Link to={`/internships/${opp.id}`} key={opp.id} className="block hover:bg-muted/50 p-2 rounded-md">
+                        <p className="font-semibold text-sm">{opp.title}</p>
+                        <p className="text-xs text-muted-foreground">{opp.company}</p>
+                      </Link>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No similar opportunities found.</p>
+                  )}
                 </CardContent>
               </Card>
             </div>
