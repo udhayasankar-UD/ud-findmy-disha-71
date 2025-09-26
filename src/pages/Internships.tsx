@@ -1,161 +1,180 @@
-import { useState } from "react";
+// src/pages/Internships.tsx
+
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  Search, 
-  MapPin, 
-  IndianRupee, 
-  Clock, 
-  Building2, 
-  Filter,
-  Calendar,
-  FileText,
-  Bookmark,
-  Star,
-  Users
-} from "lucide-react";
+import { Search, Filter } from "lucide-react";
 import Layout from "@/components/Layout";
-import internshipsData from "@/data/internships-new.json";
+import axios from "axios";
+import InternshipCard from "@/components/InternshipCard";
 
+// Define the type for a single internship
+interface Internship {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  stipend: string;
+  stipend_numeric: number | null;
+  duration: string;
+  sector: string;
+  skills: string | string[];
+  type: string;
+  dateposted?: string | null;
+  deadline?: string | null;
+}
+
+// The new, detailed filter options
 const filterOptions = {
-  location: ["New Delhi", "Mumbai", "Bengaluru", "Hyderabad", "Chennai", "Pune"],
+  location: ["New Delhi", "Mumbai", "Bengaluru", "Hyderabad", "Chennai", "Pune", "Remote"],
   workType: ["Full-time", "Remote", "Hybrid", "Part-time"],
   duration: ["1-3 months", "3-6 months", "6+ months"],
   stipend: ["Under ₹15k", "₹15k - ₹25k", "₹25k - ₹35k", "Above ₹35k"],
   skills: ["Python", "JavaScript", "React", "Node.js", "SQL", "Data Analysis", "Digital Marketing", "UI Design", "Content Writing", "Research"]
 };
 
+// --- Helper Functions for Filtering ---
+const parseStipendRange = (range: string): { min: number; max: number } => {
+    if (range.startsWith("Under")) return { min: 0, max: 15000 };
+    if (range.startsWith("Above")) return { min: 35000, max: Infinity };
+    const [min, max] = range.replace(/₹|k/g, '').split(' - ').map(s => parseInt(s, 10) * 1000);
+    return { min, max };
+};
+
+const parseDurationRange = (range: string): { min: number; max: number } => {
+    if (range.includes('+')) return { min: 6, max: Infinity };
+    const [min, max] = range.replace(/ months/g, '').split('-').map(s => parseInt(s, 10));
+    return { min, max };
+};
+
+const getDurationInMonths = (durationStr: string): number => {
+    const num = parseInt(durationStr, 10);
+    return isNaN(num) ? 0 : num;
+}
+
 const Internships = () => {
+  // State for UI controls
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilters, setSelectedFilters] = useState<{[key: string]: string[]}>({
-    location: [],
-    workType: [],
-    duration: [],
-    stipend: [],
-    skills: []
+  const [selectedFilters, setSelectedFilters] = useState({
+    location: [] as string[], workType: [] as string[],
+    duration: [] as string[], stipend: [] as string[],
+    skills: [] as string[],
   });
-  const [sortBy, setSortBy] = useState("latest");
+  const [visibleCount, setVisibleCount] = useState(10); // State for pagination
 
-  const handleFilterChange = (category: string, value: string, checked: boolean) => {
-    setSelectedFilters(prev => ({
-      ...prev,
-      [category]: checked 
-        ? [...prev[category], value]
-        : prev[category].filter(item => item !== value)
-    }));
-  };
-
-  const clearAllFilters = () => {
-    setSelectedFilters({
-      location: [],
-      workType: [],
-      duration: [],
-      stipend: [],
-      skills: []
+  // --- Data Fetching with React Query for Caching ---
+  const fetchInternships = async (): Promise<Internship[]> => {
+    const { data } = await axios.get('http://127.0.0.1:8000/internships');
+    return data.internships.map((internship: any) => {
+        let parsedSkills = [];
+        if (typeof internship.skills === 'string') {
+            try {
+                parsedSkills = JSON.parse(internship.skills.replace(/'/g, '"'));
+            } catch (e) { console.error("Could not parse skills:", internship.skills); }
+        }
+        return { ...internship, skills: parsedSkills };
     });
   };
 
-  const filteredInternships = internshipsData.filter(internship => {
-    const matchesSearch = internship.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         internship.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         internship.sector.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesLocation = selectedFilters.location.length === 0 || 
-                           selectedFilters.location.some(loc => internship.location.includes(loc));
-    
-    const matchesSector = selectedFilters.skills.length === 0 || 
-                         selectedFilters.skills.some(skill => internship.skills?.includes(skill));
-    
-    return matchesSearch && matchesLocation && matchesSector;
+  const { data: internships = [], isLoading, error } = useQuery({
+    queryKey: ['internships'],
+    queryFn: fetchInternships,
   });
 
+  const handleFilterChange = (category: keyof typeof selectedFilters, value: string, checked: boolean) => {
+    setSelectedFilters(prev => ({
+      ...prev,
+      [category]: checked
+        ? [...prev[category], value]
+        : prev[category].filter(item => item !== value)
+    }));
+    setVisibleCount(10); // Reset pagination on filter change
+  };
+  
+  const clearAllFilters = () => {
+    setSelectedFilters({ location: [], workType: [], duration: [], stipend: [], skills: [] });
+    setVisibleCount(10);
+  };
+
+  // --- Memoized Filtering Logic ---
+  const filteredInternships = useMemo(() => {
+    return internships
+      .filter(internship => {
+        // Search Query Filter
+        const matchesSearch = internship.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              internship.company.toLowerCase().includes(searchQuery.toLowerCase());
+        if (!matchesSearch) return false;
+
+        // Checkbox Filters
+        const matchesLocation = selectedFilters.location.length === 0 || 
+                                selectedFilters.location.some(loc => internship.location.includes(loc));
+        if (!matchesLocation) return false;
+
+        const matchesWorkType = selectedFilters.workType.length === 0 || 
+                                selectedFilters.workType.includes(internship.type);
+        if (!matchesWorkType) return false;
+
+        const matchesSkills = selectedFilters.skills.length === 0 || 
+                              selectedFilters.skills.some(skill => Array.isArray(internship.skills) && internship.skills.includes(skill));
+        if (!matchesSkills) return false;
+
+        // Range Filters
+        const matchesStipend = selectedFilters.stipend.length === 0 || 
+                               selectedFilters.stipend.some(range => {
+                                   const { min, max } = parseStipendRange(range);
+                                   const stipend = internship.stipend_numeric ?? 0;
+                                   return stipend >= min && stipend < max;
+                               });
+        if (!matchesStipend) return false;
+
+        const matchesDuration = selectedFilters.duration.length === 0 ||
+                                selectedFilters.duration.some(range => {
+                                    const { min, max } = parseDurationRange(range);
+                                    const durationMonths = getDurationInMonths(internship.duration);
+                                    return durationMonths >= min && durationMonths <= max;
+                                });
+        if (!matchesDuration) return false;
+
+        return true;
+      });
+  }, [internships, searchQuery, selectedFilters]);
+
   const activeFiltersCount = Object.values(selectedFilters).flat().length;
+  const paginatedInternships = filteredInternships.slice(0, visibleCount);
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50">
+      <div className="bg-background">
         <div className="container mx-auto px-4 py-6">
-          {/* Header */}
           <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search Job Title, Company or Skill..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Filter className="h-4 w-4" />
-                  Filters
-                  {activeFiltersCount > 0 && (
-                    <Badge variant="secondary" className="ml-1">
-                      {activeFiltersCount}
-                    </Badge>
-                  )}
-                </Button>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="latest">Latest</SelectItem>
-                    <SelectItem value="stipend">Stipend</SelectItem>
-                    <SelectItem value="deadline">Deadline</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>Showing {filteredInternships.length} Internships</span>
-              <span>Sort by: {sortBy}</span>
-            </div>
+            {/* Header and Search UI ... */}
           </div>
 
-          <div className="flex gap-6">
+          <div className="flex flex-col md:flex-row gap-6">
             {/* Filters Sidebar */}
-            <div className="w-64 flex-shrink-0">
+            <div className="w-full md:w-64 flex-shrink-0">
               <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base font-semibold">Filters</CardTitle>
-                    {activeFiltersCount > 0 && (
-                      <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-xs">
-                        Clear All
-                      </Button>
-                    )}
-                  </div>
+                <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                  <CardTitle className="text-base font-semibold">Filters</CardTitle>
+                  {activeFiltersCount > 0 && <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-xs">Clear All</Button>}
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {Object.entries(filterOptions).map(([category, options]) => (
                     <div key={category}>
-                      <h4 className="font-medium text-sm mb-2 capitalize">
-                        {category === 'workType' ? 'Work Type' : category}
-                      </h4>
+                      <h4 className="font-medium text-sm mb-2 capitalize">{category.replace('workType', 'Work Type')}</h4>
                       <div className="space-y-2">
                         {options.map((option) => (
                           <div key={option} className="flex items-center space-x-2">
                             <Checkbox
                               id={`${category}-${option}`}
-                              checked={selectedFilters[category].includes(option)}
-                              onCheckedChange={(checked) => 
-                                handleFilterChange(category, option, checked as boolean)
-                              }
+                              checked={selectedFilters[category as keyof typeof selectedFilters].includes(option)}
+                              onCheckedChange={(checked) => handleFilterChange(category as keyof typeof selectedFilters, option, checked as boolean)}
                             />
-                            <label 
-                              htmlFor={`${category}-${option}`}
-                              className="text-sm cursor-pointer"
-                            >
-                              {option}
-                            </label>
+                            <label htmlFor={`${category}-${option}`} className="text-sm cursor-pointer">{option}</label>
                           </div>
                         ))}
                       </div>
@@ -167,101 +186,32 @@ const Internships = () => {
 
             {/* Internships List */}
             <div className="flex-1">
-              <div className="space-y-4">
-                {filteredInternships.map((internship) => (
-                  <Card key={internship.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex gap-3 flex-1">
-                          {/* Company Icon */}
-                          <div className="w-12 h-12 bg-orange-100 rounded flex items-center justify-center flex-shrink-0">
-                            <Building2 className="h-6 w-6 text-orange-600" />
-                          </div>
-
-                          <div className="flex-1">
-                            {/* Title and Company */}
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold text-lg">{internship.title}</h3>
-                              <Badge className="bg-orange-500 text-white text-xs">Featured</Badge>
-                            </div>
-                            <p className="text-slate-600 font-medium mb-2">{internship.company}</p>
-
-                            {/* Description */}
-                            <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                              {internship.description}
-                            </p>
-
-                            {/* Details */}
-                            <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                              <span className="flex items-center gap-1">
-                                <MapPin className="h-3 w-3" />
-                                {internship.location}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                {internship.duration}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <IndianRupee className="h-3 w-3" />
-                                {internship.stipend}/month
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Users className="h-3 w-3" />
-                                254 applicants
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                Deadline: {internship.deadline}
-                              </span>
-                            </div>
-
-                            {/* Skills */}
-                            <div className="flex flex-wrap gap-2">
-                              {internship.skills?.slice(0, 4).map((skill, index) => (
-                                <Badge 
-                                  key={skill} 
-                                  className={`text-xs ${
-                                    index === 0 
-                                      ? "bg-gray-100 text-gray-700" 
-                                      : "bg-slate-700 text-white"
-                                  }`}
-                                >
-                                  {skill}
-                                </Badge>
-                              ))}
-                              {internship.skills && internship.skills.length > 4 && (
-                                <Badge className="bg-slate-700 text-white text-xs">
-                                  +{internship.skills.length - 4} more
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex flex-col items-end gap-2">
-                          <Button variant="ghost" size="sm">
-                            <Bookmark className="h-4 w-4" />
-                          </Button>
-                          <div className="text-xs text-gray-500 mb-2">
-                            Posted 3 days ago
-                          </div>
-                          <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-                            Apply Now
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Load More */}
-              <div className="text-center mt-8">
-                <Button variant="outline" className="px-8">
-                  Load More Internships
-                </Button>
-              </div>
+              {isLoading ? (
+                <p className="text-muted-foreground">Loading internships...</p>
+              // src/pages/Internships.tsx (Corrected)
+                ) : error ? (
+                  <p className="text-destructive">{typeof error === 'string' ? error : 'An unexpected error occurred.'}</p>
+                ) : (
+                <>
+                  <div className="mb-4 text-sm text-gray-600">Showing {paginatedInternships.length} of {filteredInternships.length} internships</div>
+                  <div className="space-y-4">
+                    {paginatedInternships.map((internship) => (
+                      <InternshipCard
+                        description={""} key={internship.id}
+                        {...internship}
+                        stipend={internship.stipend_numeric ? `₹${internship.stipend_numeric.toLocaleString()}/month` : 'Varies'}
+                        skills={Array.isArray(internship.skills) ? internship.skills : []}                      />
+                    ))}
+                  </div>
+                  {visibleCount < filteredInternships.length && (
+                    <div className="text-center mt-8">
+                      <Button variant="outline" className="px-8" onClick={() => setVisibleCount(prev => prev + 10)}>
+                        Load More Internships
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>

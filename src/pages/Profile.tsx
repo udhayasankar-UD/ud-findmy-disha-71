@@ -8,20 +8,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import ProgressBar from "@/components/ProgressBar";
-import { 
-  User, 
-  Edit, 
-  Save, 
-  MapPin, 
-  GraduationCap, 
-  Briefcase, 
+import {
+  User,
+  Edit,
+  Save,
+  MapPin,
+  GraduationCap,
+  Briefcase,
   Star,
   Award,
-  Target
+  Target,
+  Plus,
+  X
 } from "lucide-react";
 
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const [newSkill, setNewSkill] = useState("");
   const [formData, setFormData] = useState({
     name: "Priya Sharma",
     email: "priya.sharma@example.com",
@@ -30,20 +33,43 @@ const Profile = () => {
     education: "Undergraduate (Bachelor's)",
     college: "Delhi University",
     course: "Computer Science",
-    year: "3rd Year",
-    skills: "JavaScript, React, Python, Data Analysis, Communication",
+    year: "3",
+    skills: ["JavaScript", "React", "Python", "Data Analysis", "Communication"],
     location: "New Delhi, Delhi",
     preferredSector: "Technology",
     preferredStipend: "₹15,000 - ₹25,000",
-    preferredDuration: "3-6 months",
+    preferredDuration: "3 months",
     bio: "Passionate computer science student with strong analytical skills and experience in web development. Looking for opportunities to apply my technical knowledge in real-world projects."
   });
 
   const profileCompletion = 85;
-  const skills = formData.skills.split(", ");
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const addSkill = () => {
+    if (newSkill.trim() && !formData.skills.includes(newSkill.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        skills: [...prev.skills, newSkill.trim()]
+      }));
+      setNewSkill("");
+    }
+  };
+
+  const removeSkill = (skillToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      skills: prev.skills.filter(skill => skill !== skillToRemove)
+    }));
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addSkill();
+    }
   };
 
   const handleSave = () => {
@@ -97,8 +123,8 @@ const Profile = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ProgressBar 
-                value={profileCompletion} 
+              <ProgressBar
+                value={profileCompletion}
                 label="Profile Strength"
                 variant="success"
               />
@@ -223,12 +249,23 @@ const Profile = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="year">Current Year</Label>
-                  <Input
-                    id="year"
+                  <Select
                     value={formData.year}
-                    onChange={(e) => handleInputChange('year', e.target.value)}
+                    onValueChange={(value) => handleInputChange('year', value)}
                     disabled={!isEditing}
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2">2</SelectItem>
+                      <SelectItem value="3">3</SelectItem>
+                      <SelectItem value="4">4</SelectItem>
+                      <SelectItem value="5">5</SelectItem>
+                      <SelectItem value="Graduated">Graduated</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </CardContent>
@@ -246,18 +283,47 @@ const Profile = () => {
               <div className="space-y-2">
                 <Label htmlFor="skills">Skills</Label>
                 {isEditing ? (
-                  <Textarea
-                    id="skills"
-                    value={formData.skills}
-                    onChange={(e) => handleInputChange('skills', e.target.value)}
-                    placeholder="Separate skills with commas"
-                    rows={2}
-                  />
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        id="skills"
+                        value={newSkill}
+                        onChange={(e) => setNewSkill(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder="Type a skill (e.g., Java, Python, React)"
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        onClick={addSkill}
+                        disabled={!newSkill.trim()}
+                        size="sm"
+                        className="px-3"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Add
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.skills.map((skill, index) => (
+                        <Badge key={index} variant="secondary" className="flex items-center gap-1 pr-1">
+                          {skill}
+                          <button
+                            type="button"
+                            onClick={() => removeSkill(skill)}
+                            className="ml-1 hover:bg-red-100 rounded-full p-0.5 transition-colors"
+                          >
+                            <X className="w-3 h-3 text-red-500" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {skills.map((skill, index) => (
+                    {formData.skills.map((skill, index) => (
                       <Badge key={index} variant="secondary">
-                        {skill.trim()}
+                        {skill}
                       </Badge>
                     ))}
                   </div>
@@ -288,12 +354,29 @@ const Profile = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="preferredDuration">Preferred Duration</Label>
-                  <Input
-                    id="preferredDuration"
+                  <Select
                     value={formData.preferredDuration}
-                    onChange={(e) => handleInputChange('preferredDuration', e.target.value)}
+                    onValueChange={(value) => handleInputChange('preferredDuration', value)}
                     disabled={!isEditing}
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1 month">1 month</SelectItem>
+                      <SelectItem value="2 months">2 months</SelectItem>
+                      <SelectItem value="3 months">3 months</SelectItem>
+                      <SelectItem value="4 months">4 months</SelectItem>
+                      <SelectItem value="5 months">5 months</SelectItem>
+                      <SelectItem value="6 months">6 months</SelectItem>
+                      <SelectItem value="7 months">7 months</SelectItem>
+                      <SelectItem value="8 months">8 months</SelectItem>
+                      <SelectItem value="9 months">9 months</SelectItem>
+                      <SelectItem value="10 months">10 months</SelectItem>
+                      <SelectItem value="11 months">11 months</SelectItem>
+                      <SelectItem value="12 months">12 months</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </CardContent>
