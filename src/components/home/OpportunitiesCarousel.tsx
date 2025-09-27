@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Code, Heart, Leaf, Building, Plane, Shield, Users, GraduationCap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const opportunities = [
   {
@@ -63,6 +64,12 @@ const opportunities = [
 ];
 
 export function OpportunitiesCarousel() {
+  const navigate = useNavigate();
+
+  const handleViewOpportunities = () => {
+    navigate('/internships');
+  };
+
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
@@ -104,6 +111,7 @@ export function OpportunitiesCarousel() {
                   
                   <Button 
                     variant="outline" 
+                    onClick={handleViewOpportunities}
                     className="w-full group/btn opacity-0 group-hover:opacity-100 transition-opacity duration-300 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     View Opportunities

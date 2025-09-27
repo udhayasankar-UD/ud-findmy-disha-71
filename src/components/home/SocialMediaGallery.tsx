@@ -1,6 +1,10 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Twitter, Linkedin, Youtube, Heart, Share, MessageCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import digitalIndiaPost from '@/assets/social/digital-india-post.jpg';
+import linkedinSuccess from '@/assets/social/linkedin-success.jpg';
+import successStories from '@/assets/social/success-stories.jpg';
+import governmentAnnouncement from '@/assets/social/government-announcement.jpg';
 
 const socialMediaPosts = [
   {
@@ -11,7 +15,7 @@ const socialMediaPosts = [
     date: '2024-01-15',
     likes: 245,
     shares: 89,
-    image: '/placeholder.svg'
+    image: digitalIndiaPost
   },
   {
     id: 2,
@@ -20,7 +24,8 @@ const socialMediaPosts = [
     author: 'Ministry of Electronics & IT',
     date: '2024-01-14',
     likes: 412,
-    shares: 156
+    shares: 156,
+    image: linkedinSuccess
   },
   {
     id: 3,
@@ -30,7 +35,7 @@ const socialMediaPosts = [
     date: '2024-01-13',
     likes: 1200,
     shares: 340,
-    image: '/placeholder.svg'
+    image: successStories
   },
   {
     id: 4,
@@ -39,7 +44,8 @@ const socialMediaPosts = [
     author: 'Government of India',
     date: '2024-01-12',
     likes: 890,
-    shares: 234
+    shares: 234,
+    image: governmentAnnouncement
   }
 ];
 
