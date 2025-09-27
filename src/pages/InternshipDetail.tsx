@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
-import { ArrowLeft, MapPin, Calendar, IndianRupee, Building, CheckCircle, Award, Heart, Share2, Briefcase } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, IndianRupee, Building, CheckCircle, Award, Bookmark, Share2, Briefcase } from "lucide-react";
 import axios from "axios";
 
 // Interface for a single internship, matching our data structure
@@ -55,6 +55,22 @@ const InternshipDetail = () => {
   const [similarOpportunities, setSimilarOpportunities] = useState<InternshipDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSaved, setIsSaved] = useState(false);
+
+  const handleShare = async () => {
+    try {
+      const url = window.location.href;
+      await navigator.clipboard.writeText(url);
+      // You could add a toast notification here
+      console.log('URL copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy URL:', err);
+    }
+  };
+
+  const toggleSave = () => {
+    setIsSaved(!isSaved);
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -128,8 +144,12 @@ const InternshipDetail = () => {
                       <p className="text-lg text-muted-foreground mt-1">{internship.company}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="icon"><Heart className="w-4 h-4" /></Button>
-                      <Button variant="outline" size="icon"><Share2 className="w-4 h-4" /></Button>
+                      <Button variant="outline" size="icon" onClick={toggleSave}>
+                        <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current text-orange-500' : ''}`} />
+                      </Button>
+                      <Button variant="outline" size="icon" onClick={handleShare}>
+                        <Share2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground pt-4">
