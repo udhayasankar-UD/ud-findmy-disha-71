@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { ArrowLeft, MapPin, Calendar, IndianRupee, Building, CheckCircle, Award, Bookmark, Share2, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ApplicationModal } from "@/components/ApplicationModal";
 import axios from "axios";
 
 // Interface for a single internship, matching our data structure
@@ -58,6 +59,19 @@ const InternshipDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
+  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
+
+  // Mock user profile data (in a real app, this would come from user context/auth)
+  const userProfile = {
+    name: "Prabhakaran",
+    email: "prabhakaran@xyz.in",
+    phone: "9876543210",
+    dateOfBirth: "1999-05-15",
+    skills: ["JavaScript", "React", "Python", "Django", "Communication"],
+    interests: "Web Development, Machine Learning, UI/UX Design",
+    qualifications: "Bachelor's in Computer Science from Anna University, Currently in 3rd year with CGPA 8.5/10",
+    resume: null as File | null
+  };
 
   const handleShare = async () => {
     try {
@@ -198,7 +212,14 @@ const InternshipDetail = () => {
                     </div>
                     <div className="flex justify-between"><span>Sector</span><span className="font-semibold">{internship.sector}</span></div>
                   </div>
-                  <Button className="w-full" size="lg"><Briefcase className="w-4 h-4 mr-2" />Apply for This Internship</Button>
+                  <Button 
+                    className="w-full" 
+                    size="lg"
+                    onClick={() => setIsApplicationModalOpen(true)}
+                  >
+                    <Briefcase className="w-4 h-4 mr-2" />
+                    Apply for This Internship
+                  </Button>
                   <p className="text-xs text-center text-muted-foreground">By applying, you agree to our Terms of Service and Privacy Policy.</p>
                 </CardContent>
               </Card>
@@ -225,6 +246,13 @@ const InternshipDetail = () => {
           </div>
         </div>
       </div>
+
+      <ApplicationModal
+        isOpen={isApplicationModalOpen}
+        onClose={() => setIsApplicationModalOpen(false)}
+        internshipTitle={internship.title}
+        userProfile={userProfile}
+      />
     </Layout>
   );
 };
