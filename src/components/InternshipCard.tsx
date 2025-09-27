@@ -56,7 +56,7 @@ const InternshipCard = ({
         <div className="flex-1 space-y-3">
           <div>
             <h3 className="font-semibold text-lg text-slate-800">{title}</h3>
-            <p className="text-orange-600 font-medium text-sm">{company}</p>
+            <p className="text-muted-foreground font-medium text-sm">{company}</p>
           </div>
 
           <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
@@ -71,30 +71,22 @@ const InternshipCard = ({
           <div className="flex items-center justify-between pt-2">
             <div className="flex items-center gap-2">
               {Array.isArray(skills) && skills.slice(0, 3).map((skill) => (
-                <Badge key={skill} variant="outline" className="font-normal text-orange-600 border-orange-200">{skill}</Badge>
+                <Badge key={skill} variant="outline" className="font-normal">{skill}</Badge>
               ))}
               {Array.isArray(skills) && skills.length > 3 && (
-                <Badge variant="secondary" className="bg-orange-50 text-orange-600">+{skills.length - 3} more</Badge>
+                <Badge variant="secondary">+{skills.length - 3} more</Badge>
               )}
             </div>
             
-            <div className="flex gap-2">
-              <Button 
-                asChild 
-                variant="outline" 
-                size="sm"
-                className="border-orange-500 text-orange-500 hover:bg-orange-50"
-              >
-                <Link to={`/internships/${id}`}>
-                  View Details
-                </Link>
-              </Button>
-              <Button asChild size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
-                <Link to={`/internships/${id}`}>
-                  Apply Now
-                </Link>
-              </Button>
-            </div>
+            <Button 
+              asChild 
+              variant="outline" 
+              size="sm"
+            >
+              <Link to={`/internships/${id}`}>
+                View Details
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
