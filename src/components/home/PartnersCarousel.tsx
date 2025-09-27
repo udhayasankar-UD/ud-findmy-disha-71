@@ -23,14 +23,14 @@ export function PartnersCarousel() {
             Trusted ministries and departments offering internship opportunities
           </p>
         </div>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6">
           {partners.map((partner) => (
             <Card key={partner.id} className="text-center hover:shadow-disha transition-all duration-300 group">
               <CardContent className="p-6 space-y-4">
                 <div className="w-16 h-16 mx-auto bg-muted rounded-lg flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                  <img 
-                    src={partner.logo} 
+                  <img
+                    src={partner.logo}
                     alt={partner.name}
                     className="w-12 h-12 object-contain"
                   />

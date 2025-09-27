@@ -25,3 +25,8 @@ dist-ssr
 
 .env
 api/.env
+
+
+# Ignore joblib cache files
+*.joblib
+api/*.joblib

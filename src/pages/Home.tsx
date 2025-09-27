@@ -3,7 +3,6 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import heroImage from '@/assets/hero-image.jpg';
-import { PartnersCarousel } from '@/components/home/PartnersCarousel';
 import { EligibilityDashboard } from '@/components/home/EligibilityDashboard';
 import { BenefitsSection } from '@/components/home/BenefitsSection';
 import { SocialMediaGallery } from '@/components/home/SocialMediaGallery';
@@ -74,9 +73,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* Partners Carousel */}
-        <PartnersCarousel />
 
         {/* Eligibility Dashboard */}
         <EligibilityDashboard />
