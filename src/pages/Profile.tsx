@@ -26,18 +26,18 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [newSkill, setNewSkill] = useState("");
   const [formData, setFormData] = useState({
-    name: "Priya Sharma",
-    email: "priya.sharma@example.com",
+    name: "Prabhakaran",
+    email: "prabhakaran@xyz.in",
     phone: "9876543210",
     aadhaar: "1234-5678-9012",
     education: "Undergraduate (Bachelor's)",
-    college: "Delhi University",
+    college: "Anna University",
     course: "Computer Science",
     year: "3",
-    skills: ["JavaScript", "React", "Python", "Data Analysis", "Communication"],
-    location: "New Delhi, Delhi",
+    skills: ["JavaScript", "React", "Python", "Django", "Communication"],
+    location: "Bangalore",
     preferredSector: "Technology",
-    preferredStipend: "₹15,000 - ₹25,000",
+    preferredStipend: "₹5,000",
     preferredDuration: "3 months",
     bio: "Passionate computer science student with strong analytical skills and experience in web development. Looking for opportunities to apply my technical knowledge in real-world projects."
   });
@@ -344,7 +344,7 @@ const Profile = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="preferredStipend">Preferred Stipend</Label>
+                  <Label htmlFor="preferredStipend">Minimum Stipend</Label>
                   <Input
                     id="preferredStipend"
                     value={formData.preferredStipend}

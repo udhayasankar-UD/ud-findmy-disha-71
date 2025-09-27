@@ -44,14 +44,14 @@ const AIMatching = () => {
   const [error, setError] = useState<string | null>(null);
 
   const userProfile = {
-    skills: ["SCORM", "ISO 22000", "Thermal Imaging", "Mapbox"],
-    qualification: "B.Tech in Environmental Science",
-    preferred_location: "Sambalpur",
-    pincode: "768001",
-    min_stipend: 7000,
-    available_from: "2025-09-20",
+    skills: ["JavaScript", "React", "Python", "Django", "Communication"],
+    qualification: "B.Tech in Computer Science",
+    preferred_location: "Bangalore",
+    pincode: "560001",
+    min_stipend: 5000,
+    available_from: "2025-09-23",
     remote_ok: true,
-  };
+  };  
 
   const fetchRecommendations = async (): Promise<Recommendation[]> => {
     const response = await axios.post('http://127.0.0.1:8000/recommend', userProfile);
