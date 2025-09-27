@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { ArrowLeft, MapPin, Calendar, IndianRupee, Building, CheckCircle, Award, Bookmark, Share2, Briefcase } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 
 // Interface for a single internship, matching our data structure
@@ -51,6 +52,7 @@ const parseListFromString = (str: string | string[] | undefined | null): string[
 
 const InternshipDetail = () => {
   const { id } = useParams();
+  const { toast } = useToast();
   const [internship, setInternship] = useState<InternshipDetails | null>(null);
   const [similarOpportunities, setSimilarOpportunities] = useState<InternshipDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,10 +63,17 @@ const InternshipDetail = () => {
     try {
       const url = window.location.href;
       await navigator.clipboard.writeText(url);
-      // You could add a toast notification here
-      console.log('URL copied to clipboard');
+      toast({
+        title: "Copied the internship",
+        description: "Internship link has been copied to clipboard",
+      });
     } catch (err) {
       console.error('Failed to copy URL:', err);
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy the internship link",
+        variant: "destructive",
+      });
     }
   };
 
