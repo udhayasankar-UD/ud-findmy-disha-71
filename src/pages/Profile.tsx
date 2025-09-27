@@ -19,7 +19,9 @@ import {
   Award,
   Target,
   Plus,
-  X
+  X,
+  Upload,
+  FileText
 } from "lucide-react";
 
 const Profile = () => {
@@ -39,7 +41,11 @@ const Profile = () => {
     preferredSector: "Technology",
     preferredStipend: "₹5,000",
     preferredDuration: "3 months",
-    bio: "Passionate computer science student with strong analytical skills and experience in web development. Looking for opportunities to apply my technical knowledge in real-world projects."
+    bio: "Passionate computer science student with strong analytical skills and experience in web development. Looking for opportunities to apply my technical knowledge in real-world projects.",
+    dateOfBirth: "1999-05-15",
+    interests: "Web Development, Machine Learning, UI/UX Design",
+    qualifications: "Bachelor's in Computer Science from Anna University, Currently in 3rd year with CGPA 8.5/10",
+    resume: null as File | null
   });
 
   const profileCompletion = 85;
@@ -197,6 +203,37 @@ const Profile = () => {
                   disabled={!isEditing}
                   rows={3}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="resume" className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Resume
+                </Label>
+                {isEditing ? (
+                  <div className="space-y-2">
+                    <Input
+                      id="resume"
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setFormData(prev => ({ ...prev, resume: file }));
+                      }}
+                      className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Upload your resume in PDF, DOC, or DOCX format (max 5MB)
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 p-3 border rounded-md bg-muted/50">
+                    <Upload className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      {formData.resume ? formData.resume.name : "No resume uploaded"}
+                    </span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
