@@ -3,6 +3,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Building2, MapPin, Calendar, IndianRupee } from "lucide-react";
 
 interface InternshipCardProps {
@@ -46,41 +47,58 @@ const InternshipCard = ({
 }: InternshipCardProps) => {
 
   return (
-    // Make the entire card a link
-    <Link to={`/internships/${id}`} className="block">
-      <Card className="hover:shadow-disha-md transition-shadow duration-300 p-6 h-full">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Building2 className="h-6 w-6 text-primary" />
+    <Card className="hover:shadow-lg transition-shadow duration-300 p-6 h-full">
+      <div className="flex items-start gap-4">
+        <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <Building2 className="h-6 w-6 text-orange-600" />
+        </div>
+
+        <div className="flex-1 space-y-3">
+          <div>
+            <h3 className="font-semibold text-lg text-slate-800">{title}</h3>
+            <p className="text-orange-600 font-medium text-sm">{company}</p>
           </div>
 
-          <div className="flex-1 space-y-3">
-            <div>
-              <h3 className="font-semibold text-lg text-secondary">{title}</h3>
-              <p className="text-muted-foreground font-medium text-sm">{company}</p>
-            </div>
-
-            <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
-            
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4" />{formatLocation(location)}</span>
-              <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4" />{formatDuration(duration)}</span>
-              <span className="flex items-center gap-1.5"><IndianRupee className="h-4 w-4" />{stipend}</span>
-              {deadline && <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4" />Deadline: {new Date(deadline).toLocaleDateString('en-IN')}</span>}
-            </div>
-            
-            <div className="flex items-center gap-2 pt-2">
-              {Array.isArray(skills) && skills.slice(0, 4).map((skill) => (
-                <Badge key={skill} variant="outline" className="font-normal">{skill}</Badge>
+          <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
+          
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4" />{formatLocation(location)}</span>
+            <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4" />{formatDuration(duration)}</span>
+            <span className="flex items-center gap-1.5"><IndianRupee className="h-4 w-4" />{stipend}</span>
+            {deadline && <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4" />Deadline: {new Date(deadline).toLocaleDateString('en-IN')}</span>}
+          </div>
+          
+          <div className="flex items-center justify-between pt-2">
+            <div className="flex items-center gap-2">
+              {Array.isArray(skills) && skills.slice(0, 3).map((skill) => (
+                <Badge key={skill} variant="outline" className="font-normal text-orange-600 border-orange-200">{skill}</Badge>
               ))}
-              {Array.isArray(skills) && skills.length > 4 && (
-                <Badge variant="secondary" className="bg-secondary text-secondary-foreground">+{skills.length - 4} more</Badge>
+              {Array.isArray(skills) && skills.length > 3 && (
+                <Badge variant="secondary" className="bg-orange-50 text-orange-600">+{skills.length - 3} more</Badge>
               )}
+            </div>
+            
+            <div className="flex gap-2">
+              <Button 
+                asChild 
+                variant="outline" 
+                size="sm"
+                className="border-orange-500 text-orange-500 hover:bg-orange-50"
+              >
+                <Link to={`/internships/${id}`}>
+                  View Details
+                </Link>
+              </Button>
+              <Button asChild size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
+                <Link to={`/internships/${id}`}>
+                  Apply Now
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
-      </Card>
-    </Link>
+      </div>
+    </Card>
   );
 };
 
