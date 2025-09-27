@@ -17,7 +17,7 @@ import InternshipCard from "@/components/InternshipCard";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis, // <-- ADDED THIS IMPORT
+  PaginationEllipsis, 
   PaginationItem,
   PaginationLink,
   PaginationNext,
