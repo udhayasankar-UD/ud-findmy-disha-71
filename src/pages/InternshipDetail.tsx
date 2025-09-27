@@ -207,7 +207,7 @@ const InternshipDetail = () => {
                     <div className="flex justify-between">
                       <span>Openings</span>
                       <span className="font-semibold">
-                        {internship.numberofopenings ? `${internship.numberofopenings} positions` : 'N/A'}
+                        {internship.numberofopenings ? `${internship.numberofopenings} positions` : '3'}
                       </span>
                     </div>
                     <div className="flex justify-between"><span>Sector</span><span className="font-semibold">{internship.sector}</span></div>
