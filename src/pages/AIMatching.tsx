@@ -93,10 +93,14 @@ const AIMatching = () => {
 
   // --- HARDCODED DATA FOR SIDEBAR & INSIGHTS (As requested) ---
   const upskillSuggestions = [
-    { skill: "Advanced React Patterns", impact: "Boost match score by 8%", details: "2 weeks • Free Online", priority: "High" },
-    { skill: "Data Structures & Algorithms", impact: "Unlock 15+ more matches", details: "4 weeks • Free Online", priority: "Medium" },
-    { skill: "API Development", impact: "Boost match score by 5%", details: "1 week • Free Online", priority: "Low" }
+    { skill: "Advanced React Patterns", impact: "Boost match score by 8%", details: "2 weeks • Free Online", priority: "High", url: "https://www.epicreact.dev/modules/advanced-react-patterns-v1/advanced-react-patterns-welcome" },
+    { skill: "Data Structures & Algorithms", impact: "Unlock 15+ more matches", details: "4 weeks • Free Online", priority: "Medium", url: "https://www.geeksforgeeks.org/dsa/dsa-tutorial-learn-data-structures-and-algorithms/" },
+    { skill: "API Development", impact: "Boost match score by 5%", details: "1 week • Free Online", priority: "Low", url: "https://www.cloudskillsboost.google/paths/21" }
   ];
+
+  const handleStartLearning = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
   const aiInsights = [
     { icon: TrendingUp, title: "Growing Demand", description: "Frontend developer roles increased by 25% this month" },
     { icon: Users, title: "Competition Level", description: "You're in the top 15% of candidates for tech internships" },
@@ -201,7 +205,7 @@ const AIMatching = () => {
                         </div>
                         <p className="text-xs text-success font-medium">{suggestion.impact}</p>
                         <p className="text-xs text-muted-foreground">{suggestion.details}</p>
-                        <Button variant="outline" size="sm" className="w-full !mt-3">Start Learning</Button>
+                        <Button variant="outline" size="sm" className="w-full !mt-3" onClick={() => handleStartLearning(suggestion.url)}>Start Learning</Button>
                       </div>
                     ))}
                   </CardContent>

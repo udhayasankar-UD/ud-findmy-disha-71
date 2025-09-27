@@ -58,7 +58,7 @@ const getDurationInMonths = (durationStr: string | null): number => {
   return isNaN(num) ? 0 : num;
 };
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 7;
 
 const Internships = () => {
   const [searchQuery, setSearchQuery] = useState("");
