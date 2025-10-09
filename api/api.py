@@ -23,11 +23,20 @@ from . import config
 
 app = FastAPI()
 
-origins = ["*"]
+# --- THE FIX: ADD YOUR VERCEL URL HERE ---
+origins = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    # Replace this with your actual Vercel project URL
+    "https://ud-findmy-disha-71.vercel.app" 
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins, allow_credentials=True,
-    allow_methods=["*"], allow_headers=["*"],
+    allow_origins=origins, 
+    allow_credentials=True,
+    allow_methods=["*"], 
+    allow_headers=["*"],
 )
 
 class UserProfile(BaseModel):

@@ -12,25 +12,34 @@ import { Search, Filter } from "lucide-react";
 import Layout from "@/components/Layout";
 import axios from "axios";
 import InternshipCard from "@/components/InternshipCard";
-
-// --- THE FIX: Correctly import all necessary pagination components ---
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis, 
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { usePagination, DOTS } from "@/hooks/usePagination"; // This will now work
+import { usePagination, DOTS } from "@/hooks/usePagination";
 
-// --- (The rest of the file is the same as the previous version) ---
+// THIS IS THE KEY CHANGE FOR DEPLOYMENT
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
 interface Internship {
-  id: string; title: string; company: string; location: string; stipend: string;
-  stipend_numeric: number | null; duration: string; sector: string;
-  skills: string | string[]; type: string; dateposted?: string | null;
-  deadline?: string | null; description: string;
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  stipend: string;
+  stipend_numeric: number | null;
+  duration: string;
+  sector: string;
+  skills: string | string[];
+  type: string;
+  dateposted?: string | null;
+  deadline?: string | null;
+  description: string;
 }
 
 const filterOptions = {
@@ -71,7 +80,8 @@ const Internships = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const fetchInternships = async (): Promise<Internship[]> => {
-    const { data } = await axios.get('http://127.0.0.1:8000/internships');
+    // Uses the new API_URL variable
+    const { data } = await axios.get(`${API_URL}/internships`);
     return data.internships.map((internship: any) => ({
       ...internship,
       skills: typeof internship.skills === 'string' ? JSON.parse(internship.skills.replace(/'/g, '"')) : [],

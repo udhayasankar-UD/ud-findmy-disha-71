@@ -12,7 +12,9 @@ import AIMatchCard from "@/components/AIMatchCard";
 import { Brain, Sparkles, Target, Award, BookOpen, RefreshCw, TrendingUp, Users, Shield, AlertTriangle } from "lucide-react";
 import axios from "axios";
 
-// --- (Keep all TypeScript interfaces the same) ---
+// THIS IS THE KEY CHANGE FOR DEPLOYMENT
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
 interface ExplanationFactor { score: number; explanation: string; }
 interface ExplanationDetails {
   semantic_match: ExplanationFactor;
@@ -54,7 +56,8 @@ const AIMatching = () => {
   };  
 
   const fetchRecommendations = async (): Promise<Recommendation[]> => {
-    const response = await axios.post('http://127.0.0.1:8000/recommend', userProfile);
+    // Use the API_URL variable
+    const response = await axios.post(`${API_URL}/recommend`, userProfile);
     return response.data.recommendations.map((rec: any) => ({
       ...rec,
       skills: typeof rec.skills === 'string' ? JSON.parse(rec.skills.replace(/'/g, '"')) : [],
@@ -83,15 +86,12 @@ const AIMatching = () => {
   const topMatch = recommendations.length > 0 ? recommendations[0] : null;
   const matchAnalysisData = topMatch?.explanation?.why_this_fits;
 
-  // --- MAPPING FOR DYNAMIC "MATCH ANALYSIS" ---
   const factorMap: { key: keyof ExplanationDetails; label: string }[] = [
     { key: 'skill_match', label: 'Skills Compatibility' },
     { key: 'location_match', label: 'Location Preference' },
     { key: 'semantic_match', label: 'Sector Interest' },
-    // You can add more factors here if your backend sends them
   ];
 
-  // --- HARDCODED DATA FOR SIDEBAR & INSIGHTS (As requested) ---
   const upskillSuggestions = [
     { skill: "Advanced React Patterns", impact: "Boost match score by 8%", details: "2 weeks • Free Online", priority: "High", url: "https://www.epicreact.dev/modules/advanced-react-patterns-v1/advanced-react-patterns-welcome" },
     { skill: "Data Structures & Algorithms", impact: "Unlock 15+ more matches", details: "4 weeks • Free Online", priority: "Medium", url: "https://www.geeksforgeeks.org/dsa/dsa-tutorial-learn-data-structures-and-algorithms/" },
@@ -182,7 +182,6 @@ const AIMatching = () => {
                         return (
                           <div key={item.key}>
                             <ProgressBar value={factor.score} label={item.label} variant="success" />
-                            {/* THE FIX: Add the explanation text */}
                             <p className="text-xs text-muted-foreground mt-1">{factor.explanation}</p>
                           </div>
                         );

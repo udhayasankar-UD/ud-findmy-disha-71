@@ -11,6 +11,9 @@ import { useToast } from "@/hooks/use-toast";
 import { ApplicationModal } from "@/components/ApplicationModal";
 import axios from "axios";
 
+// THIS IS THE KEY CHANGE FOR DEPLOYMENT
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
 // Interface for a single internship, matching our data structure
 interface InternshipDetails {
   id: string;
@@ -101,8 +104,8 @@ const InternshipDetail = () => {
       setIsLoading(true);
       setError(null);
       try {
-        // Fetch all internships to find the current one and the next ones
-        const response = await axios.get('http://127.0.0.1:8000/internships');
+        // Use the API_URL variable
+        const response = await axios.get(`${API_URL}/internships`);
         const allInternships = response.data.internships as InternshipDetails[];
         
         const currentIndex = allInternships.findIndex(item => item.id === id);
