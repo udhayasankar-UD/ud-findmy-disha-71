@@ -1,0 +1,5 @@
+# Ignore the Python backend API directory
+api/
+
+# Also ignore the Python requirements file
+requirements.txt
