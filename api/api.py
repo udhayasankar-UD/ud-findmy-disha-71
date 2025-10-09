@@ -10,7 +10,7 @@ import pandas as pd
 from supabase import create_client, Client
 import json
 
-load_dotenv(dotenv_path='api/.env') 
+load_dotenv(dotenv_path='api/.env')
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
@@ -23,19 +23,19 @@ from . import config
 
 app = FastAPI()
 
-# --- THE FIX: ADD YOUR VERCEL URL HERE ---
+# --- THE FIX: Updated list of allowed origins ---
 origins = [
-    "http://localhost:8080",
-    "http://127.0.0.1:8080",
-    # Replace this with your actual Vercel project URL
-    "https://ud-findmy-disha-71.vercel.app" 
+    "https://ud-findmy-disha-71.vercel.app", # Your deployed Vercel frontend
+    "http://localhost:8080",                # Your local development server
+    "http://127.0.0.1:8080",                # Also for local development
+    "http://localhost:5173",                # Default port for Vite dev server
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins, 
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"], 
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
