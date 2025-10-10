@@ -25,10 +25,11 @@ app = FastAPI()
 
 # --- THE FIX: Updated list of allowed origins ---
 origins = [
-    "https://ud-findmy-disha-71.vercel.app", # Your deployed Vercel frontend
-    "http://localhost:8080",                # Your local development server
-    "http://127.0.0.1:8080",                # Also for local development
-    "http://localhost:5173",                # Default port for Vite dev server
+    "https://disha-universal.app",              # Your main production URL
+    "https://ud-findmy-disha-71.vercel.app",  # Vercel's default project URL
+    "http://localhost:8080",                  # Local development
+    "http://127.0.0.1:8080",                  # Local development
+    "http://localhost:5173",                  # Vite's default port
 ]
 
 app.add_middleware(
