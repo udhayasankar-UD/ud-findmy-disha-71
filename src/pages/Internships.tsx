@@ -25,6 +25,7 @@ import { usePagination, DOTS } from "@/hooks/usePagination";
 
 // THIS IS THE KEY CHANGE FOR DEPLOYMENT
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+console.log("The application is using API URL:", API_URL);
 
 interface Internship {
   id: string;
