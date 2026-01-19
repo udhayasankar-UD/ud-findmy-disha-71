@@ -9,38 +9,17 @@ import Layout from "@/components/Layout";
 import { ArrowLeft, MapPin, Calendar, IndianRupee, Building, CheckCircle, Award, Bookmark, Share2, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ApplicationModal } from "@/components/ApplicationModal";
-import axios from "axios";
-
-// THIS IS THE KEY CHANGE FOR DEPLOYMENT
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+import { loadAllInternships, type Internship } from "@/lib/csvLoader";
 
 // Interface for a single internship, matching our data structure
-interface InternshipDetails {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  stipend: string;
-  duration: string;
-  sector: string;
-  description: string;
-  requirements: string | string[];
-  responsibilities: string | string[];
-  skills: string | string[];
-  perks: string | string[];
-  deadline: string | null;
-  startdate: string | null;
-  numberofopenings: number | null;
-  type: string;
+interface InternshipDetails extends Internship {
+  numberofopenings?: number;
+  startdate?: string;
 }
 
-// Helper to format ["City", "Pincode"] into just "City"
+// Helper to format location
 const formatLocation = (locationStr: string): string => {
-  try {
-    const arr = JSON.parse(locationStr.replace(/'/g, '"'));
-    if (Array.isArray(arr) && arr.length > 0) return arr[0];
-  } catch (e) { return locationStr; }
-  return locationStr;
+  return locationStr || "Location not specified";
 };
 
 // Helper to parse stringified lists
@@ -100,14 +79,12 @@ const InternshipDetail = () => {
 
   useEffect(() => {
     if (!id) return;
+    
     const fetchInternshipData = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        // Use the API_URL variable
-        const response = await axios.get(`${API_URL}/internships`);
-        const allInternships = response.data.internships as InternshipDetails[];
-        
+        const allInternships = await loadAllInternships();
         const currentIndex = allInternships.findIndex(item => item.id === id);
 
         if (currentIndex === -1) {
@@ -115,26 +92,27 @@ const InternshipDetail = () => {
             return;
         }
         
-        const currentInternship = allInternships[currentIndex];
+        const currentInternship = allInternships[currentIndex] as InternshipDetails;
         setInternship(currentInternship);
 
         // Find the next two internships for the "Similar Opportunities" section
-        const nextOpportunities = [];
+        const nextOpportunities: InternshipDetails[] = [];
         if (allInternships[currentIndex + 1]) {
-            nextOpportunities.push(allInternships[currentIndex + 1]);
+            nextOpportunities.push(allInternships[currentIndex + 1] as InternshipDetails);
         }
         if (allInternships[currentIndex + 2]) {
-            nextOpportunities.push(allInternships[currentIndex + 2]);
+            nextOpportunities.push(allInternships[currentIndex + 2] as InternshipDetails);
         }
         setSimilarOpportunities(nextOpportunities);
 
       } catch (err) {
-        setError("Failed to load internship details. Please ensure the API is running.");
+        setError("Failed to load internship details.");
         console.error(err);
       } finally {
         setIsLoading(false);
       }
     };
+    
     fetchInternshipData();
   }, [id]);
 

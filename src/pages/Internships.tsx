@@ -1,7 +1,6 @@
 // src/pages/Internships.tsx
 
-import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +9,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter } from "lucide-react";
 import Layout from "@/components/Layout";
-import axios from "axios";
 import InternshipCard from "@/components/InternshipCard";
 import {
   Pagination,
@@ -22,25 +20,10 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { usePagination, DOTS } from "@/hooks/usePagination";
+import { loadAllInternships, type Internship } from "@/lib/csvLoader";
 
-// THIS IS THE KEY CHANGE FOR DEPLOYMENT
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
-console.log("The application is using API URL:", API_URL);
-
-interface Internship {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  stipend: string;
+interface InternshipDisplay extends Internship {
   stipend_numeric: number | null;
-  duration: string;
-  sector: string;
-  skills: string | string[];
-  type: string;
-  dateposted?: string | null;
-  deadline?: string | null;
-  description: string;
 }
 
 const filterOptions = {
@@ -80,16 +63,35 @@ const Internships = () => {
   const [sortBy, setSortBy] = useState("latest");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const fetchInternships = async (): Promise<Internship[]> => {
-    // Uses the new API_URL variable
-    const { data } = await axios.get(`${API_URL}/internships`);
-    return data.internships.map((internship: any) => ({
-      ...internship,
-      skills: typeof internship.skills === 'string' ? JSON.parse(internship.skills.replace(/'/g, '"')) : [],
-    }));
-  };
+  const [internships, setInternships] = useState<InternshipDisplay[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const { data: internships = [], isLoading, error } = useQuery({ queryKey: ['internships'], queryFn: fetchInternships });
+  useEffect(() => {
+    const loadInternships = async () => {
+      setIsLoading(true);
+      try {
+        const allInternships = await loadAllInternships();
+        const parsedInternships = allInternships.map((internship) => {
+          return {
+            ...internship,
+            stipend_numeric: internship.stipend || 0,
+            duration: internship.duration?.toString() || '0',
+            skills: Array.isArray(internship.skills) ? internship.skills : [],
+          } as InternshipDisplay;
+        });
+        setInternships(parsedInternships);
+        setError(null);
+      } catch (err) {
+        setError("Failed to load internships data");
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadInternships();
+  }, []);
 
   const filteredInternships = useMemo(() => {
     return internships.filter(internship => {

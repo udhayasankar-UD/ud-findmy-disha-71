@@ -71,9 +71,10 @@ const AIMatchCard = ({ internship }: { internship: Recommendation }) => {
 
         {/* Match Score */}
         <ProgressBar
-            value={whyFitsData?.total_score || 0}
+            value={Math.round(internship.final_score) || 0}
             label="Match Score"
             variant="success"
+            max={100}
         />
 
         {/* Description */}
